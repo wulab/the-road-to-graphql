@@ -1,24 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import axios from "axios";
+
+const axiosGitHubGraphQL = axios.create({
+  baseURL: "https://api.github.com/graphql",
+  headers: {
+    Authorization: `bearer ${
+      process.env.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN
+    }`
+  }
+});
 
 function App() {
+  const [path, setPath] = useState(
+    "the-road-to-learn-react/the-road-to-learn-react"
+  );
+
+  function handleSubmit(event) {
+    event.preventDefault();
+  }
+
+  function handleChange(event) {
+    event.preventDefault();
+    setPath(event.target.value);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <section className="topic">
+        <h2>
+          <a href="#title">#</a> React GraphQL GitHub Client
+        </h2>
+      </section>
+      <section className="nes-container with-title">
+        <h3 className="title">Repository</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="nes-field">
+            <input
+              type="text"
+              className="nes-input"
+              value={path}
+              onChange={handleChange}
+            />
+          </div>
+          <button type="submit" className="nes-btn is-primary">
+            Update
+          </button>
+        </form>
+      </section>
     </div>
   );
 }
