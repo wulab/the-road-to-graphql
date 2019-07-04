@@ -62,7 +62,8 @@ function App() {
         }
         const repository = response.data.data.organization.repository;
         setIssues(repository.issues.edges.map(obj => obj.node));
-        setEndCursor(repository.issues.pageInfo.endCursor);
+        const { endCursor, hasNextPage } = repository.issues.pageInfo;
+        setEndCursor(hasNextPage ? endCursor : null);
       })
       .catch(error => console.error(error.message));
   }, [path, cursor]);
