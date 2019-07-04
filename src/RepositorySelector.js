@@ -3,7 +3,7 @@ import classNames from "classnames";
 
 function RepositorySelector({ initialValue, onSelect }) {
   const [value, setValue] = useState(initialValue);
-  const [disabled, setDisabled] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   function handleChange(event) {
     event.preventDefault();
