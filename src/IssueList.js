@@ -1,15 +1,20 @@
 import React from "react";
 import classNames from "classnames";
 
-function IssueList({ issues }) {
+function IssueList({ issues, onNextClick }) {
+  function handleClick(event) {
+    event.preventDefault();
+    onNextClick();
+  }
+
   return (
     <section
       className="topic nes-container with-title"
-      style={{ backgroundColor: "#d3d3d3", paddingBottom: 0 }}
+      style={{ backgroundColor: "#d3d3d3" }}
     >
-      <h3 className="title">Issues</h3>
+      <h3 className="title">Top issues</h3>
       {issues.map(({ id, title, url }, index) => {
-        const direction = index % 2 === 0 ? "left" : "right";
+        const direction = index % 2 === 0 ? "right" : "left";
         return (
           <a href={url} key={id} style={{ color: "#212529" }} target="_blank">
             <p
@@ -29,6 +34,9 @@ function IssueList({ issues }) {
         );
       })}
       <div style={{ clear: "both" }} />
+      <button type="button" onClick={handleClick} class="nes-btn is-primary">
+        Next>
+      </button>
     </section>
   );
 }

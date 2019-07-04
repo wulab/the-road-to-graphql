@@ -38,7 +38,7 @@ function RepositorySelector({ initialValue, onSelect }) {
             "is-disabled": disabled
           })}
         >
-          Set
+          Set>
         </button>
       </form>
     </section>

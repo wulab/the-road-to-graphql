@@ -14,20 +14,24 @@ const axiosGitHubGraphQL = axios.create({
 });
 
 const GET_REPOSITORY_ISSUES = `
-  query GetRepositoryIssues($organization: String!, $repository: String!) {
+  query GetRepositoryIssues($organization: String!, $repository: String!, $cursor: String) {
     organization(login: $organization) {
       name
       url
       repository(name: $repository) {
         name
         url
-        issues(last: 5) {
+        issues(first: 3, after: $cursor, orderBy: { field: COMMENTS, direction: DESC }) {
           edges {
             node {
               id
               title
               url
             }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
           }
         }
       }
@@ -39,6 +43,8 @@ function App() {
   const [path, setPath] = useState(
     "the-road-to-learn-react/the-road-to-learn-react"
   );
+  const [cursor, setCursor] = useState(null);
+  const [endCursor, setEndCursor] = useState(null);
   const [issues, setIssues] = useState(null);
   const [errors, setErrors] = useState(null);
 
@@ -47,7 +53,7 @@ function App() {
     axiosGitHubGraphQL
       .post("", {
         query: GET_REPOSITORY_ISSUES,
-        variables: { organization, repository }
+        variables: { organization, repository, cursor }
       })
       .then(response => {
         if (response.data.errors) {
@@ -55,15 +61,20 @@ function App() {
           throw new Error("Something went wrong");
         }
         const repository = response.data.data.organization.repository;
-        const issues = repository.issues.edges.map(obj => obj.node);
-        setIssues(issues);
+        setIssues(repository.issues.edges.map(obj => obj.node));
+        setEndCursor(repository.issues.pageInfo.endCursor);
       })
       .catch(error => console.error(error.message));
-  }, [path]);
+  }, [path, cursor]);
 
   function handleSelect(value) {
     setIssues(null);
     setPath(value);
+  }
+
+  function handleNextClick() {
+    setIssues(null);
+    setCursor(endCursor);
   }
 
   return (
@@ -75,7 +86,7 @@ function App() {
       </section>
       <RepositorySelector initialValue={path} onSelect={handleSelect} />
       {issues === null && errors === null && (
-        <Dialog title="Issues" description="Loading..." />
+        <Dialog title="Top issues" description="Loading..." />
       )}
       {issues === null && errors !== null && (
         <Dialog
@@ -83,7 +94,9 @@ function App() {
           description={errors.map(error => error.message).join(" ")}
         />
       )}
-      {issues !== null && <IssueList issues={issues} />}
+      {issues !== null && (
+        <IssueList issues={issues} onNextClick={handleNextClick} />
+      )}
     </div>
   );
 }
