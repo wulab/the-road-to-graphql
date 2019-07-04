@@ -5,7 +5,7 @@ function IssueList({ issues }) {
   return (
     <section
       className="topic nes-container with-title"
-      style={{ paddingBottom: 0 }}
+      style={{ backgroundColor: "#d3d3d3", paddingBottom: 0 }}
     >
       <h3 className="title">Issues</h3>
       {issues.map(({ id, title, url }, index) => {
@@ -17,6 +17,7 @@ function IssueList({ issues }) {
                 [`from-${direction}`]: true
               })}
               style={{
+                clear: "both",
                 float: direction,
                 marginBottom: "3rem",
                 textAlign: direction
