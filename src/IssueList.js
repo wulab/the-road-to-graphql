@@ -17,8 +17,9 @@ function IssueList({ issues }) {
                 [`from-${direction}`]: true
               })}
               style={{
+                float: direction,
                 marginBottom: "3rem",
-                float: direction
+                textAlign: direction
               }}
             >
               {title}
