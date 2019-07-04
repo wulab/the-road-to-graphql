@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import RepositorySelector from "./RepositorySelector";
+import Dialog from "./Dialog";
 import IssueList from "./IssueList";
 
 const axiosGitHubGraphQL = axios.create({
@@ -39,6 +40,7 @@ function App() {
     "the-road-to-learn-react/the-road-to-learn-react"
   );
   const [issues, setIssues] = useState(null);
+  const [errors, setErrors] = useState(null);
 
   useEffect(() => {
     const [organization, repository] = path.split("/");
@@ -49,17 +51,14 @@ function App() {
       })
       .then(response => {
         if (response.data.errors) {
-          alert(
-            `Something went wrong: ${response.data.errors
-              .map(error => error.message)
-              .join(" ")}`
-          );
-          return;
+          setErrors(response.data.errors);
+          throw new Error("Something went wrong");
         }
         const repository = response.data.data.organization.repository;
         const issues = repository.issues.edges.map(obj => obj.node);
         setIssues(issues);
-      });
+      })
+      .catch(error => console.error(error.message));
   }, [path]);
 
   function handleSelect(value) {
@@ -75,11 +74,16 @@ function App() {
         </h2>
       </section>
       <RepositorySelector initialValue={path} onSelect={handleSelect} />
-      {issues === null ? (
-        <h3 className="title">Loading...</h3>
-      ) : (
-        <IssueList issues={issues} />
+      {issues === null && errors === null && (
+        <Dialog title="Issues" description="Loading..." />
       )}
+      {issues === null && errors !== null && (
+        <Dialog
+          title="Error"
+          description={errors.map(error => error.message).join(" ")}
+        />
+      )}
+      {issues !== null && <IssueList issues={issues} />}
     </div>
   );
 }
