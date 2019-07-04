@@ -5,5 +5,7 @@ RUN yarn
 COPY . .
 RUN yarn build
 
-FROM nginx:alpine
-COPY --from=builder /usr/src/app/build /usr/share/nginx/html
+FROM node:alpine
+COPY --from=builder /usr/src/app/build ./
+RUN yarn global add serve
+CMD serve -l tcp://0.0.0.0:$PORT
