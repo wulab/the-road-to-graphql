@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import RepositorySelector from "./RepositorySelector";
+import IssueList from "./IssueList";
 
 const axiosGitHubGraphQL = axios.create({
   baseURL: "https://api.github.com/graphql",
@@ -10,18 +12,59 @@ const axiosGitHubGraphQL = axios.create({
   }
 });
 
+const GET_REPOSITORY_ISSUES = `
+  query GetRepositoryIssues($organization: String!, $repository: String!) {
+    organization(login: $organization) {
+      name
+      url
+      repository(name: $repository) {
+        name
+        url
+        issues(last: 5) {
+          edges {
+            node {
+              id
+              title
+              url
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 function App() {
   const [path, setPath] = useState(
     "the-road-to-learn-react/the-road-to-learn-react"
   );
+  const [issues, setIssues] = useState(null);
 
-  function handleSubmit(event) {
-    event.preventDefault();
-  }
+  useEffect(() => {
+    const [organization, repository] = path.split("/");
+    axiosGitHubGraphQL
+      .post("", {
+        query: GET_REPOSITORY_ISSUES,
+        variables: { organization, repository }
+      })
+      .then(response => {
+        if (response.data.errors) {
+          alert(
+            `Something went wrong: ${response.data.errors
+              .map(error => error.message)
+              .join(" ")}`
+          );
+          return;
+        }
+        const repository = response.data.data.organization.repository;
+        const issues = repository.issues.edges.map(obj => obj.node);
+        setIssues(issues);
+      });
+  }, [path]);
 
-  function handleChange(event) {
-    event.preventDefault();
-    setPath(event.target.value);
+  function handleSelect(value) {
+    setIssues(null);
+    setPath(value);
   }
 
   return (
@@ -31,22 +74,12 @@ function App() {
           <a href="#title">#</a> React GraphQL GitHub Client
         </h2>
       </section>
-      <section className="nes-container with-title">
-        <h3 className="title">Repository</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="nes-field">
-            <input
-              type="text"
-              className="nes-input"
-              value={path}
-              onChange={handleChange}
-            />
-          </div>
-          <button type="submit" className="nes-btn is-primary">
-            Update
-          </button>
-        </form>
-      </section>
+      <RepositorySelector initialValue={path} onSelect={handleSelect} />
+      {issues === null ? (
+        <h3 className="title">Loading...</h3>
+      ) : (
+        <IssueList issues={issues} />
+      )}
     </div>
   );
 }
