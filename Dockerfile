@@ -5,7 +5,7 @@ RUN yarn
 COPY . .
 RUN yarn build
 
-FROM node:alpine
-COPY --from=builder /usr/src/app/build ./
-RUN yarn global add serve
-CMD serve -l tcp://0.0.0.0:$PORT
+FROM nginx:alpine
+COPY --from=builder /usr/src/app/build /usr/share/nginx/html
+EXPOSE $PORT
+CMD /bin/sh -c 'sed -i -E "s/listen( +)80;/listen\1$PORT;/g" /etc/nginx/conf.d/default.conf; exec nginx -g "daemon off;"'
