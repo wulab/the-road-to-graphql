@@ -4,12 +4,15 @@ import RepositorySelector from "./RepositorySelector";
 import Dialog from "./Dialog";
 import IssueList from "./IssueList";
 
+const token = prompt(
+  "GitHub Personal Access Token",
+  process.env.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN
+);
+
 const axiosGitHubGraphQL = axios.create({
   baseURL: "https://api.github.com/graphql",
   headers: {
-    Authorization: `bearer ${
-      process.env.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN
-    }`
+    Authorization: `bearer ${token}`
   }
 });
 
