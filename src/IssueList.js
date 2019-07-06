@@ -16,7 +16,13 @@ function IssueList({ issues, onNextClick }) {
       {issues.map(({ id, title, url }, index) => {
         const direction = index % 2 === 0 ? "right" : "left";
         return (
-          <a href={url} key={id} style={{ color: "#212529" }} target="_blank">
+          <a
+            href={url}
+            key={id}
+            style={{ color: "#212529" }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <p
               className={classNames("nes-balloon", {
                 [`from-${direction}`]: true
